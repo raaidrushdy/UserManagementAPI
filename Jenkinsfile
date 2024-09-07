@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         SONARQUBE_SERVER = 'MySonarQubeServer'  // Replace with the name of your SonarQube server configuration in Jenkins
-        SONAR_HOST_URL = 'http://localhost:9000/'  // Update with your SonarQube host URL
+        SONAR_HOST_URL = 'http://localhost:9000/projects'  // Update with your SonarQube host URL
     }
 
     stages {
