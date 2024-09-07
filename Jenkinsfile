@@ -40,7 +40,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube Analysis...'
-                def mvn = tool 'maven' // Ensure the Maven installation is properly set in Jenkins under Global Tool Configuration
+                def mvn = tool 'Maven' // Ensure the Maven installation is properly set in Jenkins under Global Tool Configuration
                 withSonarQubeEnv(SONARQUBE_SERVER) {
                     sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=User-Management-API -Dsonar.projectName='User Management API'"
                 }
