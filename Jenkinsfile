@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Default Maven' // Ensure the Maven installation is properly set in Jenkins under Global Tool Configuration
+        maven 'Maven' // Ensure the Maven installation is properly set in Jenkins under Global Tool Configuration
     }
 
     environment {
