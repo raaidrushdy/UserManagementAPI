@@ -75,8 +75,12 @@ pipeline {
 
         stage('Monitoring and Alerting') {
             steps {
+                echo 'Stopping and removing old Prometheus container (if exists)...'
+                sh 'docker stop prometheus_neww || true'
+                sh 'docker rm prometheus_neww || true'
+        
                 echo 'Running Prometheus in Docker...'
-                sh 'docker run -d --name prometheus_neww -p 9090:9090 -v /Users/raaid/Downloads/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
+                sh 'docker run -d --name prometheus_neww -p 9090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
             }
         }
     }
