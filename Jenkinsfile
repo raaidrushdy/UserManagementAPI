@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven' // This should match the name you gave Maven in Jenkins settings
+        maven 'Maven'  // Ensure Maven is configured in Jenkins settings
     }
 
     environment {
-        SONARQUBE_SERVER = 'MySonarQubeServer'  // Replace with the name of your SonarQube server configuration in Jenkins
-        SONAR_HOST_URL = 'http://10.0.0.143:9000'  // Update with your machine's IP address and port
+        SONARQUBE_SERVER = 'MySonarQubeServer'
+        SONAR_HOST_URL = 'http://10.0.0.143:9000'
+        NEW_RELIC_LICENSE_KEY = credentials('new-relic-license-key') // Fetching the New Relic license key from Jenkins credentials
     }
 
     stages {
@@ -73,14 +74,15 @@ pipeline {
             }
         }
 
-        stage('Monitoring and Alerting') {
+        stage('Monitoring and Alerting with New Relic') {
             steps {
-                echo 'Stopping and removing old Prometheus container (if exists)...'
-                sh 'docker stop prometheus_neww || true'
-                sh 'docker rm prometheus_neww || true'
-        
-                echo 'Running Prometheus in Docker...'
-                sh 'docker run -d --name prometheus_neww -p 9090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
+                echo 'Starting New Relic Infrastructure Agent for monitoring...'
+                sh 'NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY newrelic-infra start'
+
+                // Example: Check the status of the New Relic agent
+                sh 'newrelic-infra status'
+
+                echo 'Configuring New Relic alerts...'
             }
         }
     }
