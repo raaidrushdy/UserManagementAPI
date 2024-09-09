@@ -8,7 +8,6 @@ pipeline {
     environment {
         SONARQUBE_SERVER = 'MySonarQubeServer'
         SONAR_HOST_URL = 'http://10.0.0.143:9000'
-        NEW_RELIC_LICENSE_KEY = credentials('new-relic-license-key')
     }
 
     stages {
@@ -76,13 +75,10 @@ pipeline {
 
         stage('Monitoring and Alerting with New Relic') {
             steps {
-                echo 'Starting New Relic Infrastructure Agent for monitoring...'
-                sh 'NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY newrelic-infra start'
-
-                // Example: Check the status of the New Relic agent
-                sh 'newrelic-infra status'
-
-                echo 'Configuring New Relic alerts...'
+                echo 'Starting New Relic Infrastructure Agent...'
+                withCredentials([string(credentialsId: 'new-relic-license-key', variable: 'NEW_RELIC_LICENSE_KEY')]) {
+                    sh 'NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY newrelic-infra start'
+                }
             }
         }
     }
