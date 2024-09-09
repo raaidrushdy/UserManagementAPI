@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven'  // Ensure Maven is configured in Jenkins settings
+        maven 'Maven'
     }
 
     environment {
         SONARQUBE_SERVER = 'MySonarQubeServer'
         SONAR_HOST_URL = 'http://10.0.0.143:9000'
-        NEW_RELIC_LICENSE_KEY = credentials('new-relic-license-key') // Fetching the New Relic license key from Jenkins credentials
+        NEW_RELIC_LICENSE_KEY = credentials('new-relic-license-key')
     }
 
     stages {
