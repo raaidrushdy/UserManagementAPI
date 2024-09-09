@@ -4,11 +4,11 @@ FROM openjdk:17-jdk-slim
 # Switch to root to install required packages
 USER root
 
-# Install curl and New Relic Infrastructure Agent
+# Install New Relic Infrastructure Agent
 RUN apt-get update \
     && apt-get install -y curl gnupg \
-    && curl -o /etc/apt/sources.list.d/newrelic-infra.list https://download.newrelic.com/infrastructure_agent/linux/apt/dists/focal/main/binary-amd64/Packages \
-    && echo "deb [signed-by=/etc/apt/trusted.gpg.d/newrelic-infra.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt focal main" | tee /etc/apt/sources.list.d/newrelic-infra.list \
+    && curl -s https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | apt-key add - \
+    && echo "deb https://download.newrelic.com/infrastructure_agent/linux/apt focal main" | tee /etc/apt/sources.list.d/newrelic-infra.list \
     && apt-get update \
     && apt-get install -y newrelic-infra
 
@@ -20,3 +20,4 @@ VOLUME /tmp
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
+
