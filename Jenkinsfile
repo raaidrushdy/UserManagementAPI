@@ -1,56 +1,88 @@
 pipeline {
     agent any
+
     tools {
-        maven 'Maven' // Configure Maven in Jenkins' global tool configuration
+        maven 'Maven' // This should match the name of Maven in Jenkins settings
     }
+
     environment {
-        SONARQUBE_SERVER = 'SonarQubeServer' // Set your SonarQube server name
-        SONAR_TOKEN = credentials('sonar-token') // Use Jenkins credentials to securely store your SonarQube token
+        SONARQUBE_SERVER = 'MySonarQubeServer'  // Replace with the name of your SonarQube server configuration in Jenkins
+        SONAR_HOST_URL = 'http://localhost:9000'  // Update with your SonarQube URL
     }
+
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/raaidrushdy/UserManagementAPI.git'
             }
         }
+
         stage('Build') {
             steps {
+                echo 'Building the code...'
                 sh 'mvn clean package'
             }
-        }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-        stage('Code Quality Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQubeServer') {
-                    sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN'
+            post {
+                success {
+                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
                 }
             }
         }
+
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                sh 'mvn test'
+            }
+        }
+
+        stage('Code Quality Analysis') {
+            steps {
+                echo 'Analyzing code with SonarQube...'
+                withSonarQubeEnv(SONARQUBE_SERVER) {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=user-management-api -Dsonar.projectName="User Management API"'
+                    }
+                }
+            }
+        }
+
         stage('Deploy to Staging') {
             steps {
+                echo 'Deploying to staging using Docker Compose...'
                 sh 'docker-compose down'
                 sh 'docker-compose up -d'
             }
         }
-        stage('Release to Production') {
+
+        stage('Deploy to Production') {
             steps {
-                sh 'docker build -t user-management-api-prod .'
-                sh 'docker run -d -p 8080:8080 user-management-api-prod'
+                echo 'Building Docker image for production...'
+                sh 'docker build -f Dockerfile.prod -t user-management-api-prod .'
+
+                echo 'Running Docker container in production...'
+                sh 'docker run -d -p 8080:8080 --name user-management-api-prod user-management-api-prod'
             }
         }
+
         stage('Monitoring and Alerting') {
             steps {
+                echo 'Setting up monitoring and alerting...'
+                // Example command to configure Prometheus
                 sh 'prometheus --config.file=prometheus.yml'
             }
         }
     }
+
     post {
         always {
-            echo "Pipeline finished with status: ${currentBuild.currentResult}"
+            echo 'Pipeline finished with status: ' + currentBuild.currentResult
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
