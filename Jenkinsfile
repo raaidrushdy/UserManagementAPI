@@ -1,17 +1,22 @@
 pipeline {
     agent any
+
     tools {
-        maven 'Maven' // Ensure the Maven installation is properly set in Jenkins under Global Tool Configuration
+        maven 'Maven' // This should match the name you gave Maven in Jenkins settings
     }
+
     environment {
-        SONARQUBE_SERVER = 'MySonarQubeServer'  // Update this with the SonarQube server name you set in Jenkins
+        SONARQUBE_SERVER = 'MySonarQubeServer'  // Replace with the name of your SonarQube server configuration in Jenkins
+        SONAR_HOST_URL = 'http://10.0.0.143:9000'  // Update with your machine's IP address and port
     }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/raaidrushdy/UserManagementAPI.git'
+                git branch: 'main', url: 'https://github.com/raaidrushdy/UserManagementAPI'
             }
         }
+
         stage('Build') {
             steps {
                 echo 'Building the code...'
@@ -23,27 +28,32 @@ pipeline {
                 }
             }
         }
+
         stage('Test') {
             steps {
                 echo 'Running unit tests...'
                 sh 'mvn test'
             }
         }
+
         stage('Code Quality Analysis') {
             steps {
                 echo 'Analyzing code with SonarQube...'
-                withSonarQubeEnv('MySonarQubeServer') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=user-management-api -Dsonar.projectName="User Management API"'
+                withSonarQubeEnv(SONARQUBE_SERVER) {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=user-management-api -Dsonar.projectName="User Management API"'
+                    }
                 }
             }
-        }
         }
 
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying to staging using Docker Compose...'
-                sh 'docker-compose down'
-                sh 'docker-compose up -d'
+                echo 'Building Docker image...'
+                sh 'docker build -t user-management-api .'
+
+                echo 'Running Docker container...'
+                sh 'docker run -d -p 8080:8080 --name user-management-api user-management-api'
             }
         }
 
