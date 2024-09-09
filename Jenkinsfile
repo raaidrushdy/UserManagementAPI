@@ -58,15 +58,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Production') {
-            steps {
-                echo 'Building Docker image for production...'
-                sh 'docker build -f Dockerfile.prod -t user-management-api-prod .'
-
-                echo 'Running Docker container in production...'
-                sh 'docker run -d -p 8080:8080 --name user-management-api-prod user-management-api-prod'
-            }
-        }
+       stage('Deploy to Production') {
+    steps {
+        echo 'Building Docker image for production...'
+        sh 'docker build -f Dockerfile.prod -t user-management-api-prod .'
+        
+        echo 'Running Docker container in production...'
+        sh 'docker run -d -p 8080:8080 --name user-management-api-prod user-management-api-prod'
+    }
+}
 
         stage('Monitoring and Alerting') {
             steps {
