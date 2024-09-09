@@ -64,7 +64,8 @@ pipeline {
         sh 'docker build -f Dockerfile.prod -t user-management-api-prod .'
         
         echo 'Running Docker container in production...'
-        sh 'docker run -d -p 8080:8080 --name user-management-api-prod user-management-api-prod'
+        sh 'docker run --rm -d -p 8080:8080 --name user-management-api user-management-api-prod'
+
     }
 }
 
