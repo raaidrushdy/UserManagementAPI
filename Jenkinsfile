@@ -47,32 +47,35 @@ pipeline {
             }
         }
 
-
         stage('Deploy to Staging') {
             steps {
                 echo 'Building Docker image...'
                 sh 'docker build -t user-management-api .'
 
-                echo 'Running Docker container...'
-                sh 'docker run -d -p 8080:8080 --name user-management-api user-management-api'
+                echo 'Stopping and removing old container (if exists)...'
+                sh 'docker stop user-management-api-staging || true'
+                sh 'docker rm user-management-api-staging || true'
+
+                echo 'Running Docker container in staging...'
+                sh 'docker run -d -p 8081:8080 --name user-management-api-staging user-management-api'
             }
         }
 
-       stage('Deploy to Production') {
-    steps {
-        echo 'Building Docker image for production...'
-        sh 'docker build -f Dockerfile.prod -t user-management-api-prod .'
-        
-        echo 'Running Docker container in production...'
-        sh 'docker run --rm -d -p 8080:8080 --name user-management-api user-management-api-prod'
+        stage('Deploy to Production') {
+            steps {
+                echo 'Building Docker image for production...'
+                sh 'docker build -f Dockerfile.prod -t user-management-api-prod .'
 
-    }
-}
+                echo 'Running Docker container in production...'
+                sh 'docker stop user-management-api-prod || true'
+                sh 'docker rm user-management-api-prod || true'
+                sh 'docker run --rm -d -p 8080:8080 --name user-management-api-prod user-management-api-prod'
+            }
+        }
 
         stage('Monitoring and Alerting') {
             steps {
                 echo 'Setting up monitoring and alerting...'
-                // Example command to configure Prometheus
                 sh 'prometheus --config.file=prometheus.yml'
             }
         }
