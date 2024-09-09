@@ -73,14 +73,14 @@ pipeline {
             }
         }
 
-            stage('Monitoring and Alerting') {
+             stage('Monitoring and Alerting') {
         steps {
             echo 'Running Prometheus in Docker...'
-            sh 'docker run -d --name prometheus -p 9090:9090 -v /path/to/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
+            sh 'docker run -d --name prometheus -p 9090:9090 -v /Users/raaid/welcome-to-docker/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
         }
     }
 
-
+        
     post {
         always {
             echo 'Pipeline finished with status: ' + currentBuild.currentResult
