@@ -1,0 +1,14 @@
+# Use a base image compatible with your platform, such as slim for Java
+FROM openjdk:17-jdk-slim
+
+# Set up a temporary directory to hold the app's JAR file
+VOLUME /tmp
+
+# ARG specifies which JAR file to build
+ARG JAR_FILE=target/*.jar
+
+# Copy the JAR file to the container
+COPY ${JAR_FILE} app.jar
+
+# Command to run the app when the container starts
+ENTRYPOINT ["java", "-jar", "/app.jar"]
