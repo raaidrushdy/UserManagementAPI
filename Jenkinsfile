@@ -75,10 +75,8 @@ pipeline {
 
         stage('Monitoring and Alerting with New Relic') {
             steps {
-                echo 'Starting New Relic Infrastructure Agent...'
-                withCredentials([string(credentialsId: 'new-relic-license-key', variable: 'NEW_RELIC_LICENSE_KEY')]) {
-                    sh 'NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY newrelic-infra start'
-                }
+                echo 'Monitoring production environment with New Relic Infrastructure agent...'
+                // No need to start the agent again; it's already running
             }
         }
     }
