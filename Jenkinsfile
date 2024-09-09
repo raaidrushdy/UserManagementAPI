@@ -73,13 +73,13 @@ pipeline {
             }
         }
 
-        stage('Monitoring and Alerting') {
-            steps {
-                echo 'Setting up monitoring and alerting...'
-                sh 'prometheus --config.file=prometheus.yml'
-            }
+            stage('Monitoring and Alerting') {
+        steps {
+            echo 'Running Prometheus in Docker...'
+            sh 'docker run -d --name prometheus -p 9090:9090 -v /path/to/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
         }
     }
+
 
     post {
         always {
