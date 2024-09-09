@@ -41,11 +41,12 @@ pipeline {
                 echo 'Analyzing code with SonarQube...'
                 withSonarQubeEnv(SONARQUBE_SERVER) {
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=user-management-api -Dsonar.projectName="User Management API"'
+                        sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=user-management-api-new -Dsonar.projectName="User Management API"'
                     }
                 }
             }
         }
+
 
         stage('Deploy to Staging') {
             steps {
