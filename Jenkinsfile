@@ -1,22 +1,17 @@
 pipeline {
     agent any
-
     tools {
-        maven 'Maven' // This should match the name of Maven in Jenkins settings
+        maven 'Maven' // Ensure the Maven installation is properly set in Jenkins under Global Tool Configuration
     }
-
     environment {
-        SONARQUBE_SERVER = 'MySonarQubeServer'  // Replace with the name of your SonarQube server configuration in Jenkins
-        SONAR_HOST_URL = 'http://localhost:9000'  // Update with your SonarQube URL
+        SONARQUBE_SERVER = 'MySonarQubeServer'  // Update this with the SonarQube server name you set in Jenkins
     }
-
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/raaidrushdy/UserManagementAPI.git'
             }
         }
-
         stage('Build') {
             steps {
                 echo 'Building the code...'
@@ -28,23 +23,20 @@ pipeline {
                 }
             }
         }
-
         stage('Test') {
             steps {
                 echo 'Running unit tests...'
                 sh 'mvn test'
             }
         }
-
         stage('Code Quality Analysis') {
             steps {
                 echo 'Analyzing code with SonarQube...'
-                withSonarQubeEnv(SONARQUBE_SERVER) {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=user-management-api -Dsonar.projectName="User Management API"'
-                    }
+                withSonarQubeEnv('MySonarQubeServer') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=user-management-api -Dsonar.projectName="User Management API"'
                 }
             }
+        }
         }
 
         stage('Deploy to Staging') {
